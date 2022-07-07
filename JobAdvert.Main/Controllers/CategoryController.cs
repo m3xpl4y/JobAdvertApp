@@ -1,5 +1,5 @@
-﻿using JobAdvert.Main.Interfaces;
-using JobAdvert.Main.Models;
+﻿using JobAdvert.Main.Models;
+using JobAdvert.Main.Services;
 using JobAdvert.Main.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,22 +7,15 @@ namespace JobAdvert.Main.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly IRepository<Category, int> _categoryRepo;
+        private readonly CategoryService _service;
 
-        public CategoryController(IRepository<Category, int> categoryRepo)
+        public CategoryController(CategoryService service)
         {
-            _categoryRepo = categoryRepo;
+            _service = service;
         }
         public async Task<IActionResult> Index()
         {
-            var list = await _categoryRepo.GetAllAsync();
-            var vmList = list.Select(x => new CategoryViewModel()
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-            });
-            return View(vmList);
+            return View(await _service.GetAllAsync());
         }
         [HttpGet]
         public async Task<IActionResult> Create()
@@ -34,17 +27,41 @@ namespace JobAdvert.Main.Controllers
         {
             if (ModelState.IsValid)
             {
-                var category = new Category()
-                {
-                    Name = model.Name,
-                    Description = model.Description
-                };
-                await _categoryRepo.Create(category);
-
+                await _service.Create(model);
                 return RedirectToAction(nameof(Index));
             }
             //If you got so far, something went terrible wrong!
             return View(model);
+        }
+        public async Task<IActionResult> Details(int id)
+        {
+            return View(await _service.GetModelById(id));
+        }
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            return View(await _service.GetModelById(id));
+        }
+        [HttpPost]
+        public async Task<IActionResult> Edit([Bind("Id, Name, Description")] CategoryViewModel model)
+        {
+            if (model != null)
+            {
+                await _service.Edit(model);
+                return RedirectToAction(nameof(Index));
+            }
+            return View(model);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            return View(await _service.GetModelById(id));
+        }
+        [HttpPost]
+        public async Task<IActionResult> Delete([Bind("Id")] Category model)
+        {
+            await _service.Delete(model.Id);
+            return RedirectToAction(nameof(Index));
         }
     }
 }

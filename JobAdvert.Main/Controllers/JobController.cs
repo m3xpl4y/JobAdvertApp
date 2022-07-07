@@ -43,7 +43,8 @@ namespace JobAdvert.Main.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([Bind("Id,JobTitle,JobDescription, Published, CategoryId")] JobPostingViewModel model)
         {
-
+            if (ModelState.IsValid)
+            {
                 var category = await _catRepo.GetByIdAsync(model.CategoryId);
                 var job = new Job()
                 {
@@ -55,8 +56,9 @@ namespace JobAdvert.Main.Controllers
                 await _jobRepo.Create(job);
 
                 return RedirectToAction(nameof(Index));
+            }
             //If you got here, something went terrible wrong!
-            //return View(model);
+            return View(model);
         }
     }
 }

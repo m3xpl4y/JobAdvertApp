@@ -2,6 +2,7 @@ using JobAdvert.Main.Data;
 using JobAdvert.Main.Interfaces;
 using JobAdvert.Main.Models;
 using JobAdvert.Main.Repositories;
+using JobAdvert.Main.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,10 @@ builder.Services.AddControllersWithViews();
 #region Repositories
 builder.Services.AddScoped<IRepository<Category, int>, CategoryRepository>();
 builder.Services.AddScoped<IRepository<Job, int>, JobRepository>();
+#endregion
+
+#region Services
+builder.Services.AddScoped<CategoryService>();
 #endregion
 
 
